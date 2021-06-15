@@ -6,6 +6,9 @@
   font-family: "Lato";
   color: #333;
 }
+body {
+  background-color: #bbb;
+}
 .navbar {
   padding: 20px;
   display: flex;
@@ -24,9 +27,13 @@
   margin-left: 16px;
   text-decoration: none;
   padding: 6px;
+  border-bottom: none;
 }
 .navbar a:hover {
   color: #f1356d;
+}
+.navbar a.selected {
+  border-bottom: 2px solid #f1356d;
 }
 .content {
   max-width: 600px;
@@ -45,4 +52,17 @@ input {
 
 .decodeddatalist ul {
   list-style: none;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  color: #ddd;
+  background-color: #333;
+  text-align: center;
+  width: 100%;
+  padding: 20px;
+}
+
+.footer a {
+  color: #f1356d;
 }

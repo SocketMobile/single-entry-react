@@ -1,5 +1,4 @@
 import { useReducer } from 'react';
-// import Capture from "socketmobile-capturejs/lib/capture";
 import { useCapture, ACTIONS} from './useCapture';
 
 function reducer(state, action) {
@@ -11,15 +10,15 @@ function reducer(state, action) {
       }
       return {...state};
     case ACTIONS.ARRIVAL:
-      state.devices = [...state.devices, action.payload.device];
-      console.log('devices: ', state.devices);
+      state.devices = action.payload.devices;
       state.status = 'New device';
       if(state.devices.length > 0) {
         state.status += `, ${state.devices.map(d=> d.name).join(', ')}`;
       }
       return {...state};
+      // return state;
     case ACTIONS.REMOVAL:
-      state.devices = state.devices.filter(d => d.guid !== action.payload.device.guid);
+      state.devices = action.payload.devices;
       state.status = 'Device removed';
       if(state.devices.length > 0) {
         state.status += `, ${state.devices.map(d=> d.name).join(', ')}`;
@@ -28,6 +27,18 @@ function reducer(state, action) {
     case ACTIONS.DECODED_DATA:
       state.decodedData = action.payload.decodedData;
       return {...state};
+    case ACTIONS.OWNERSHIP_GAIN:
+      if(state.ownership === false){
+        state.ownership = true;
+        return {...state}
+      }
+      return state;
+    case ACTIONS.OWNERSHIP_LOST:
+      if(state.ownership === true){
+        state.ownership = false;
+        return {...state}
+      }
+      return state;
     case ACTIONS.ERROR:
       state.status = action.payload.message;
       if(state.devices.length > 0) {
@@ -41,13 +52,20 @@ function reducer(state, action) {
 
 const Home = () => {
 
-  const [state, dispatch] = useReducer(reducer, { devices: [], status: 'Ready', decodedData: '', decodedDataList: [] });
+  const [state, dispatch] = useReducer(reducer, 
+    { 
+      devices: [], 
+      status: 'Ready', 
+      decodedData: '', 
+      decodedDataList: [],
+      ownership: true
+    });
   
   useCapture(dispatch);
   
   return (
     <div className="home">
-      <h2>Status: {state.status}</h2>
+      <h2>Status: {state.status} {state.ownership ? '' : '⚠️'}</h2>
       <input type="text" readOnly value={state.decodedData} />
       <div className="decodeddatalist">
         <ul>

@@ -6,9 +6,11 @@ const ACTIONS = {
   REMOVAL: 2,
   DECODED_DATA: 3,
   STATUS: 4,
-  ERROR: 5
+  OWNERSHIP_GAIN: 5,
+  OWNERSHIP_LOST: 6,
+  ERROR: 7
 }
-
+const OWNERSHIP_LOST = '00000000-0000-0000-0000-000000000000';
 const capture = new Capture();
 const devices = [];
 function arrayToString(dataArray) {
@@ -44,10 +46,12 @@ const useCapture = (dispatch) => {
               captureDevice: newDevice
             }
             devices.push(device);
+            console.log('devices: ', devices);
             dispatch({
               type: ACTIONS.ARRIVAL,
               payload: {
-                device
+                device,
+                devices
               }
             });
           })
@@ -77,14 +81,15 @@ const useCapture = (dispatch) => {
           }
           const removedDevices = devices.splice(removedIndex,1);
           removedDevices[0].captureDevice.close()
-          .then(result => {
+          .then(() => {
             dispatch({
               type: ACTIONS.REMOVAL,
               payload: {
                 device: {
                   guid,
                   name
-                }
+                },
+                devices
               }
             })
           })
@@ -99,6 +104,13 @@ const useCapture = (dispatch) => {
         }
         break;
       case CaptureEventIds.Terminate:
+        break;
+      case CaptureEventIds.DeviceOwnership:
+        let type = ACTIONS.OWNERSHIP_GAIN;
+        if(e.value === OWNERSHIP_LOST){
+          type = ACTIONS.OWNERSHIP_LOST;
+        }
+        dispatch({type})
         break;
       case CaptureEventIds.Error:
         dispatch({ 
@@ -125,6 +137,7 @@ const useCapture = (dispatch) => {
       developerId: 'bb57d8e1-f911-47ba-b510-693be162686a', 
       appKey: 'MCwCFCuLEUn8hf+hSBkBdzDrG2YU2107AhRv1QNFpaH/6gI3j/vx9wz4tuE+Ow=='
     };
+    console.log('about to open Capture');
     capture.open(appInfo, onCaptureEvent)
     .then(() => {
       dispatch({ 
@@ -136,13 +149,23 @@ const useCapture = (dispatch) => {
     })
     .catch(err => {
       console.error(err);
+      let message = `Error ${err} while opening Capture`;
+      if(err === -27){
+        message = `Error ${err}. Companion Service not running? Please run Socket Mobile Companion.`;
+      }
       dispatch({
         type: ACTIONS.ERROR,
         payload: {
-          message: `Error ${err} while opening Capture`
+          message
         }
       });
     });
+    return () => {
+      console.log('Cleanup Capture...');
+      devices.forEach(d => d.captureDevice.close());
+      devices.splice(0, devices.length);
+      capture.close();
+    };
   },[onCaptureEvent, dispatch]);
 };
 
