@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Single Entry React",
+  "name": "Single Entry React App Sample using Socket Mobile Capture SDK",
   "icons": [
     {
       "src": "favicon.ico",

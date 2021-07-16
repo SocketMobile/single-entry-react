@@ -16,7 +16,6 @@ function reducer(state, action) {
         state.status += `, ${state.devices.map(d=> d.name).join(', ')}`;
       }
       return {...state};
-      // return state;
     case ACTIONS.REMOVAL:
       state.devices = action.payload.devices;
       state.status = 'Device removed';
@@ -79,16 +78,3 @@ const Home = () => {
 }
  
 export default Home;
-
-
-
-// const capture = Capture.AppInfo(myAppInfo).builder();
-// const deviceType = Capture.DeviceType(Capture.BarcodeScanner+Capture.Nfc);
-// const scannerType = Capture.DeviceType(Capture.BarcodeScanner);
-// const nfcType = Capture.DeviceType(Capture.Nfc);
-// const unsubscribeDevicePresence = 
-//   capture.subscribe(deviceType, Capture.DevicePresence,onDevicePresence);
-// const unsubscribeScannerDecodedData = 
-//   capture.subscribe(scannerType, Capture.DecodedData,onScannerDecodedData);
-// const unsubscribeNfcDecodedData = 
-//   capture.subscribe(nfcType, Capture.DecodedData,onNfcDecodedData);  
