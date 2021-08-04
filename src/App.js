@@ -1,5 +1,8 @@
 import React, {useState, useEffect, useCallback} from 'react'
 import {Capture, CaptureEventIds, SktErrors} from "socketmobile-capturejs";
+import CREDENTIALS from "./credentials"
+
+const {appId, appKey, developerId} = CREDENTIALS
 
 function arrayToString(dataArray) {
   return String.fromCharCode.apply(null, dataArray);
@@ -173,10 +176,9 @@ const App = () => {
 
   useEffect(() => {
     const appInfo = {
-      appId: 'web:com.socketmobile.SingleEntryRN',
-      developerId: 'bb57d8e1-f911-47ba-b510-693be162686a',
-      appKey:
-        'MC4CFQCcoE4i6nBXLRLKVkx8jwbEnzToWAIVAJdfJOE3U+5rUcrRGDLuXWpz0qgu',
+      appId,
+      developerId,
+      appKey,
     };
     
     capture
@@ -235,7 +237,7 @@ const App = () => {
       <ul>
         {decodedDataList.map(x=>{
           return <li>{x.name} ({x.length}): {x.data}</li>
-          
+
         })}
       </ul>
       <button onClick={clearHandler}>clear</button>
