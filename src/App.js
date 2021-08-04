@@ -235,6 +235,7 @@ const App = () => {
       <ul>
         {decodedDataList.map(x=>{
           return <li>{x.name} ({x.length}): {x.data}</li>
+          
         })}
       </ul>
       <button onClick={clearHandler}>clear</button>
