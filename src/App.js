@@ -233,6 +233,7 @@ const App = () => {
         }`}/>
       <h3>Recent Scans</h3>
       <ul>
+        
         {decodedDataList.map(x=>{
           return <li>{x.name} ({x.length}): {x.data}</li>
         })}
