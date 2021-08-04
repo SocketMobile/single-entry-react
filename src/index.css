@@ -2,67 +2,41 @@
 
 /* base styles */
 * {
-  margin: 0;
+  margin: 0px;
   font-family: "Lato";
   color: #333;
 }
+
 body {
-  background-color: #bbb;
-}
-.navbar {
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  max-width: 600px;
-  margin: 0 auto;
-  border-bottom: 1px solid #f2f2f2;
-}
-.navbar h1 {
-  color: #f1356d;
-}
-.navbar .links {
-  margin-left: auto;
-}
-.navbar a {
-  margin-left: 16px;
-  text-decoration: none;
-  padding: 6px;
-  border-bottom: none;
-}
-.navbar a:hover {
-  color: #f1356d;
-}
-.navbar a.selected {
-  border-bottom: 2px solid #f1356d;
-}
-.content {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
-}
-input {
-  width: 400px;
-  height: 40px;
-  margin: 20px;
-}
-.decodeddatalist {
-  max-height: 400px;
-  overflow-y: auto;
+  margin: 10px;
 }
 
-.decodeddatalist ul {
-  list-style: none;
+p, h3{
+  margin: 4px;
 }
-.footer {
-  position: absolute;
-  bottom: 0;
-  color: #ddd;
-  background-color: #333;
-  text-align: center;
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
   width: 100%;
-  padding: 20px;
 }
 
-.footer a {
-  color: #f1356d;
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+
+button{
+  display: block;
+  margin: 10px auto;
+}
+
+input {
+  width: 200px;
+  margin: 10px;
 }

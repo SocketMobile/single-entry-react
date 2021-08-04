@@ -1,70 +1,86 @@
-# Getting Started with Create React App
+# SingleEntryReact
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+SingleEntryReact is a React boilerplate app using the Socket Mobile JavaScript Capture Module. If you are looking for the Vanilla JS project example, the repo can be found [here](https://github.com/SocketMobile/singleentry-js).
 
-## Available Scripts
+It shows how to use the Socket Mobile CaptureJS SDK to receive the decoded data from the Socket Mobile devices into an input box.
 
-In the project directory, you can run:
+The connection state of the Socket Mobile device is shown in a status field at the top of the app.
 
-### `yarn start`
+## Requirements
+1. You will need your Socket Mobile developer ID as well as an app ID. Your developer ID can be found under your developer profile when you log into the [Socket Mobile Developer Portal](https://www.socketmobile.com/developers/portal). Then you need to [create your appKey](https://www.socketmobile.com/developers/portal/application-details/appkey-registration). For platform, select Web. For Language/Capture Client, select JavaScript. Your bundleId needs to be in the format of `socketmobile.com.yourappname`.
+2. The scanner needs to be paired with your devices in Application Mode. This can be done using the Socket Mobile Companion app (recommended), which can be downloaded from the [App Store](https://apps.apple.com/us/app/socket-mobile-companion/id1175638950). To pair your scanner in Application Mode without using Companion app, follow the instructions at: ConfigureInAppMode.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Install
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+You shouldn't need to install anything in order to use this boilerplate. However, if you want to temporarily host your app securely, you can install `ngrok` and follow the directions from this blog post (link to my blog post about using SimpleHTTPServer and ngrok).
 
-### `yarn test`
+## Usage
+To run web app on your laptop, connect an android device to your laptop so you can use `adb`. More in a moment. Then, use the Socket Mobile Companion app to connect your scanner to your attached device. Once you have successfully connected your scanner to your device, configure your credentials for your app (see below) and then in your terminal, in the project root run `adb forward tcp:18481 tcp:18481`. 
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The boilerplate HTML references the file `credentials.js`. The `.gitignore` file ignores this file as it is meant to act as an environment variable file, protecting your credentials from being exposed in a public GitHub repository. In this file is where you are to include your developerId, appKey and appId. See an example `credentials.js` file below.
 
-### `yarn build`
+```
+const CREDENTIALS = {
+    appId: "web:socketmobile.com.yourappname",
+    developerId: 'your-d3v-id',
+    appKey: 'alphanum3r1cappk3y'
+}
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Then you can access those variables in your `index.js` like so...
+```
+const {appId, developerId, appKey} = CREDENTIALS;
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+let appInfo = {
+    appId,
+    developerId,
+    appKey
+};
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+NOTE: This usage is optional and you can remove references to `credentials.js` and `CREDENTIALS` and use your credentials directly in your `index.js` file like so...
 
-### `yarn eject`
+```
+let appInfo = {
+    appId: "web:socketmobile.com.yourappname",
+    developerId: "your-d3v-id",
+    appKey: 'ALPHAnum3r1cAPPk3y'
+};
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+The capture initialization takes place in an `DOMContentLoaded` event listener to ensure the cdn is loaded before you try to use the SocketMobile prefix.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+window.addEventListener('DOMContentLoaded', ()=>{
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+    var capture = new SocketMobile.Capture();
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+    capture.open(appInfo, onCaptureEvent)
+        .then(result => {
+            console.log('opening Capture result: ', result);
+            updateStatus(`opening Capture result: ${result}`)
+        })
+        .catch(err => {
+            var val;
+            // error code to watch for to check if the Companion service is running
+            if(err === SocketMobile.SktErrors.ESKT_UNABLEOPENDEVICE){
+                val='not able to connect to the service, is it running?'
+                console.log('no able to connect to the service, is it running?');
+            }
+            else {
+                val = `opening Capture error: ${err}`;
+            }
+            console.log(val)
+            updateStatus(val, err)
+        });
+})
+```
 
-## Learn More
+Finally, `onCaptureEvent` is used to handle the data that comes back from a successfully opened capture instance.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+const onCaptureEvent = (e, handle) => {
+    console.log('notification')
+}
+```
+NOTE: The second argument of the `onCaptureEvent` callback is a handle to identify the source of the Capture event.
