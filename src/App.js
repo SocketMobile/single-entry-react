@@ -4,10 +4,6 @@ import CREDENTIALS from "./credentials"
 
 const {appId, appKey, developerId} = CREDENTIALS
 
-function arrayToString(dataArray) {
-  return String.fromCharCode.apply(null, dataArray);
-}
-
 // The logger can help to troubleshoot the communication
 // with Capture, this is totally optional and Capture
 // can be instantiated directly without any argument
@@ -25,23 +21,14 @@ class MyLogger {
 const myLogger = new MyLogger();
 const capture = new Capture();
 let dataId = 10;
-let lastDecodedData = {
-  name: '',
-  length: 0,
-  data: '',
-};
 
 const App = () => {
 
   const [devices, setDevices] = useState([]);
   const [status, setStatus] = useState('Opening Capture...');
-  const [decodedData, setDecodedData] = useState({
-    data: '',
-    length: 0,
-    name: '',
-  });
-
   const [decodedDataList, setDecodedDataList] = useState([]);
+  const [deviceMap, setDeviceMap] = useState({})
+  const [value, setValue] = useState("")
 
   const onCaptureEvent = useCallback(
     (e, handle) => {
@@ -49,7 +36,7 @@ const App = () => {
         return;
       }
       myLogger.log(`onCaptureEvent from ${handle}: `, e);
-      console.log(e)
+
       switch (e.id) {
         // **********************************
         // Device Arrival Event
@@ -74,14 +61,17 @@ const App = () => {
               myLogger.log('opening a device returns: ', result);
               setStatus(`result of opening ${e.value.name} : ${result}`);
               var dvcs = [...devices]
-              if (!dvcs.find(x=>x.guid === guid)){
+              var map = {...deviceMap}
+              if (!map[name]){
                 dvcs.push({
-                  guid,
-                  name,
-                  handle: newDevice.clientOrDeviceHandle,
-                  device: newDevice,
+                    guid,
+                    name,
+                    handle: newDevice.clientOrDeviceHandle,
+                    device: newDevice,
                 });
-              }
+                map[name] = true
+                setDeviceMap(map)
+              } 
               setDevices(dvcs)
             })
             .catch(err => {
@@ -140,22 +130,19 @@ const App = () => {
         // **********************************
         case CaptureEventIds.DecodedData:
           const deviceSource = devices.find(d => d.handle === handle);
-          if (deviceSource) {
-            setStatus(`decoded data from: ${deviceSource.name}`);
+          var list = [...decodedDataList]
+
+          if (!deviceSource) {
+            setStatus(`no matching devices found for ${e.value.name}`)
           }
-          if (lastDecodedData.length) {
-            setDecodedDataList(prevList => {
-              const newDecodedData = {...lastDecodedData};
-              newDecodedData.id = dataId++;
-              return [newDecodedData, ...prevList];
-            });
-          }
-          lastDecodedData = {
-            data: arrayToString(e.value.data),
-            length: e.value.data.length,
-            name: e.value.name,
-          };
-          setDecodedData(lastDecodedData);
+
+          var newScan = {id: dataId, name: e.value.name, data: String.fromCharCode.apply(null, e.value.data)}
+          
+          list.push(newScan)
+
+          setDecodedDataList(list);
+          setValue(`${ newScan.name.toUpperCase()} (${newScan.data.length}): ${newScan.data}`)
+
           break;
       }
     },
@@ -199,17 +186,8 @@ const App = () => {
   }, []);
 
   const clearHandler = () => {
-    var init = {
-        name: '',
-        length: 0,
-        data: '',
-    }
-    lastDecodedData = init
-    setDecodedData(init)
     setDecodedDataList([]);
   };
-
-  console.log(decodedDataList)
 
   return (
     <div>
@@ -230,17 +208,15 @@ const App = () => {
         </tbody>
       </table>
       {devices.length ? null : <p>NO DEVICES AVAILABLE</p>}
-      Current Scan: <input value={`${decodedData.name.toUpperCase()} (${decodedData.length}): ${
-          decodedData.data
-        }`}/>
+      Current Scan: <input value={value} readOnly/>
       <h3>Recent Scans</h3>
       <ul>
         {decodedDataList.map(x=>{
-          return <li>{x.name} ({x.length}): {x.data}</li>
+          return <li key={x.id}>{x.name} ({x.length}): {x.data}</li>
 
         })}
       </ul>
-      <button onClick={clearHandler}>clear</button>
+      <button onClick={clearHandler}>CLEAR</button>
     </div>
   );
 }
