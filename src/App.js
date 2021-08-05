@@ -30,6 +30,10 @@ const App = () => {
   const [deviceMap, setDeviceMap] = useState({})
   const [value, setValue] = useState("")
 
+  // useEffect(()=>{
+  //   console.log(decodedDataList)
+  // }, [decodedDataList])
+
   const onCaptureEvent = useCallback(
     (e, handle) => {
       if (!e) {
@@ -130,18 +134,25 @@ const App = () => {
         // **********************************
         case CaptureEventIds.DecodedData:
           const deviceSource = devices.find(d => d.handle === handle);
-          var list = [...decodedDataList]
+          var list = decodedDataList
 
           if (!deviceSource) {
             setStatus(`no matching devices found for ${e.value.name}`)
           }
 
-          var newScan = {id: dataId, name: e.value.name, data: String.fromCharCode.apply(null, e.value.data)}
+          var newScan = {
+            id: dataId, 
+            name: e.value.name, 
+            data: String.fromCharCode.apply(null, e.value.data),
+            length:String.fromCharCode.apply(null, e.value.data).length
+          }
           
           list.push(newScan)
 
+          dataId++
+
           setDecodedDataList(list);
-          setValue(`${ newScan.name.toUpperCase()} (${newScan.data.length}): ${newScan.data}`)
+          setValue(`${ newScan.name.toUpperCase()} (${newScan.length}): ${newScan.data}`)
 
           break;
       }
@@ -187,6 +198,7 @@ const App = () => {
 
   const clearHandler = () => {
     setDecodedDataList([]);
+    setValue("")
   };
 
   return (
@@ -200,7 +212,7 @@ const App = () => {
             <th>GUID</th>
           </tr>
           {devices.map(x=>{
-            return <tr>
+            return <tr key={x.name}>
               <th>{x.name}</th>
               <th>{x.guid}</th>
             </tr>
