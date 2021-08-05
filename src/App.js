@@ -136,7 +136,7 @@ const App = () => {
           const deviceSource = devices.find(d => d.handle === handle);
           var list = decodedDataList
 
-          if (!deviceSource) {
+          if (deviceSource) {
             setStatus(`no matching devices found for ${e.value.name}`)
           }
 

@@ -48,39 +48,56 @@ let appInfo = {
 };
 ```
 
-The capture initialization takes place in an `DOMContentLoaded` event listener to ensure the cdn is loaded before you try to use the SocketMobile prefix.
+The capture initialization takes place in an `useEffect` hook to lauch the capture request when the component mounts.
 
 ```
-window.addEventListener('DOMContentLoaded', ()=>{
-
-    var capture = new SocketMobile.Capture();
-
-    capture.open(appInfo, onCaptureEvent)
-        .then(result => {
-            console.log('opening Capture result: ', result);
-            updateStatus(`opening Capture result: ${result}`)
-        })
-        .catch(err => {
-            var val;
-            // error code to watch for to check if the Companion service is running
-            if(err === SocketMobile.SktErrors.ESKT_UNABLEOPENDEVICE){
-                val='not able to connect to the service, is it running?'
-                console.log('no able to connect to the service, is it running?');
-            }
-            else {
-                val = `opening Capture error: ${err}`;
-            }
-            console.log(val)
-            updateStatus(val, err)
-        });
-})
+useEffect(() => {
+    const appInfo = {
+      appId,
+      developerId,
+      appKey,
+    };
+    
+    capture
+      .open(appInfo, onCaptureEvent)
+      .then(() => {
+        setStatus('capture open success');
+      })
+      .catch(err => {
+        myLogger.error(err);
+        setStatus(`failed to open Capture: ${err}`);
+        // this is mostly for Android platform which requires
+        // Socket Mobile Companion app to be installed
+        if (err === SktErrors.ESKT_UNABLEOPENDEVICE) {
+          setStatus('Is Socket Mobile Companion app installed?');
+        }
+      });
+    return closeCapture;
+  }, []);
 ```
 
-Finally, `onCaptureEvent` is used to handle the data that comes back from a successfully opened capture instance.
+`onCaptureEvent` is used similarly to how it is used in the Vanilla JS example. It handles the device initialization and applies three conditionals; detecting devices, removing devices and processing scanned data.
 
 ```
 const onCaptureEvent = (e, handle) => {
-    console.log('notification')
+    const {CaptureEventIds, Capture} = SocketMobile
+    if (!e) {
+        return;
+    }
+    switch (e.id) {
+        case CaptureEventIds.DeviceArrival: //detecting devices; scanner connects to companion/device
+        ...
+        break
+        case CaptureEventIds.DeviceRemoval: //removing devices; scanner connects to companion/device
+        ... 
+        break
+        case CaptureEventIds.DecodedData: //processing captured data; executed when you scan a code
+        ...
+        break
+    }
 }
 ```
-NOTE: The second argument of the `onCaptureEvent` callback is a handle to identify the source of the Capture event.
+
+We've provided some logic to handle adding devices, removing devices, scanning items and storing those scan results (and connected devices) in state. Below is what your boilerplate should look like after connecting a scanner and scanning a few tags.
+
+![react demo](./assets/react-demo.gif)
