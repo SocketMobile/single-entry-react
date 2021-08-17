@@ -30,10 +30,6 @@ const App = () => {
   const [deviceMap, setDeviceMap] = useState({})
   const [value, setValue] = useState("")
 
-  // useEffect(()=>{
-  //   console.log(decodedDataList)
-  // }, [decodedDataList])
-
   const onCaptureEvent = useCallback(
     (e, handle) => {
       if (!e) {
