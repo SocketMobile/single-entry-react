@@ -2,7 +2,7 @@
 
 SingleEntryReact is a React boilerplate app using the Socket Mobile JavaScript Capture Module. If you are looking for the Vanilla JS project example, the repo can be found [here](https://github.com/SocketMobile/singleentry-js).
 
-It shows how to use the Socket Mobile CaptureJS SDK to receive the decoded data from the Socket Mobile devices into an input box. 
+It shows how to use the Socket Mobile CaptureJS SDK to receive the decoded data from the Socket Mobile devices into an input box.  
 
 The connection state of the Socket Mobile device is shown in a status field at the top of the app.
 
